@@ -1,0 +1,20 @@
+Data Description
+
+This folder contains data from 4 separate diel sampling events by JRB.
+
+"*_DOcompiled.csv" - for every site this is dissolved oxygen and water temperature data from a miniDOT
+"*Diel_QAQC.csv" - for every site this is the data from the Picarro
+"Diel_pH_Alk_mean_reps.csv" - all sites have their alkalinity and pH measurements compiled in this one file
+
+1) Blaine Creek, MT - Date: 2018-08-23
+a. "2018_08_23_Blaine_DOcompiled.csv"
+b. "2018_08_23_BlaineDiel_QAQC.csv"
+
+2) Beaver Creek, MT - Date: 2018-08-31
+a. "2018_08_31_Beaver_DOcompiled.csv"
+b. "2018_08_31_BeaverDiel_QAQC.csv"
+
+3) Oak Creek at Lolomai, AZ - Date: 2018-09-26 & Oak Creek at Willow, AZ - Date: 2018-09-27
+a. "2018_09_26_OakLolomai_DOcompiled.csv"
+b. "2018_09_27_OakWillow_DOcompiled.csv" 
+c. "2018_09_28_OakDiel_QAQC.csv"
