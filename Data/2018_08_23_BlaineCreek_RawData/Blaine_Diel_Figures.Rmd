@@ -1,0 +1,43 @@
+---
+title: "Blaine Diel"
+author: "JRB"
+date: "August 28, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+plot_grid(
+  ggplot(pH_10min, aes(DateTime, pH))+
+  geom_point(size=2,color="grey40")+
+  geom_point(data=notes, aes(DateTime, pH), color="red2", size=3),
+
+ggplot(pH_comparison, aes(Handheld_pH, Sensor_pH))+
+  geom_point(size=3)+
+  scale_x_continuous(limits = c(7.8, 8.7))+
+  scale_y_continuous(limits = c(7.8, 8.7))+
+  geom_abline(slope=1, size=1, linetype="dashed")+
+  xlab("Handheld pH")+
+  ylab("Sensor pH"),
+
+ncol=2)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
