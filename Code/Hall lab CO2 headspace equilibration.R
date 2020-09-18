@@ -205,8 +205,7 @@ KH.CO2 <- function(Temp_Wat_C){
 
 
 ##### [2a] FUNCTION TO ESTIMATE STREAM pCO2 from headspace sample data (what the Picarro or GC gives you)
-#### From Hotchkiss and Hall
-### Adapated for lab equilibration
+#### From ???
 # temp inputs are in C
 # pressure input is kPa
 # gasV and waterV units must be the same (to make equilibration headspace ratio)
@@ -229,7 +228,7 @@ sum_file$tempLab.C<-tempLab.C
 sum_file$StmCO2<-StmCO2
 
 ##### [2b] FUNCTION TO ESTIMATE STREAM pCO2 from headspace sample data (what the Picarro or GC gives you)
-#### From ???? (MTT doesn't know who made this, probably Bob)
+#### I (Bob) think this is correct
 ## Assumes using no air (initial pCO2 of headspace=0) for equilibration
 # equiltemp inputs are in C
 # pressure input is kPa
