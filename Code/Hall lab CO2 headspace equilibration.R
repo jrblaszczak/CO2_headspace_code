@@ -90,40 +90,38 @@ Carbfrom_C_A <- function(K1, K2, C, A){
   return(l)
 }
 
-### Function to solve carbonate chemistry using DIC & Alkalinity
-## See R Markdown file (XXXXXXX) for derivation of equations
-# H=H+ 
-# A=alkalinity in umol/L
-# C=CO2 in umol/L 
-# B=bicarbonate 
-# Ca=carbonate 
-# D=DIC in umol/L
-# A_check=alkalinity check
+### Function to calculate correction of perturbed sample for DIC before equilibration
+## Originally from Dickenson et al. 2007--Chapter 4, highlighted again by Koschorreck et al. for freshwater
 
-Carbfrom_D_A <- function(K1, K2, D, A){
-  B <- K1*(A-D)
-  C <- (A-(2*D))*K1*K2
-  H <- ((-1*B)+sqrt((B^2)-(4*A*C)))/(2*A)
-  
+DIC_correction<-function(CO2_pre,CO2_post,vol_hs,temp_equil,vol_samp){
+  delta_co2<-((CO2_pre-CO2_post)*vol_hs)/0.08205601*temp_equil
+  delta_DIC<-delta_co2/(vol_samp*0.9998395)
+  }
+
+
+Carbfrom_D_A <- function(K1, K2, D_corr, A){
+  H <- ((-1*K1*(A-D_corr))+sqrt((B^2)-(4*A*(A-(2*D_corr))*K1*K2)))/(2*A)
   pH <- -1*log10(H)
+  B <- (D_corr*K1*H)/((H^2)+(K1*H)+(K1*K2))
+  Ca <- (D_corr*K1*K2)/((H^2)+(K1*H)+(K1*K2))
+  C_corr <- (H*B)/K1
+  D_check <- C + B + Ca
+  A_check <- B + 2*Ca
   
-  B <- (D1*K1*H)/((H^2)+(K1*H)+(K1*K2))
-  Ca <- (D1*K1*K2)/((H^2)+(K1*H)+(K1*K2))
-  
-  C <- (H_t*B_t)/K1
-  D2 <- C_t + B_t + Ca_t
-  A2_check <- B_t + 2*Ca_t
-  
-  l <- list(H_t, pH_t, C_t, B_t, Ca_t, D2, A, A2_check)
-  names(l) <- c("H", "pH", "C", "B", "Ca", "D", "A", "A check")
+  l <- list(H, pH, B, Ca, C_corr, D_check, A_check)
+  names(l) <- c("H", "pH", "B", "Ca", "C", "D_check", "A check")
   return(l)
 }
 
 
+
+
+
 ############
 ## Export
-###########
+############
 write.csv(sum_file_final, "2020_08_04_13CO2_QAQC.csv",row.names = FALSE)
+
 
 
 
