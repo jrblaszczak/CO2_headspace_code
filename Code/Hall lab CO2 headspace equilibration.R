@@ -54,7 +54,7 @@ StmCO2fromSamp <- function(temp_equil, temp_samp, press_samp, vol_hs, vol_samp, 
 }
 
 ##### FUNCTION TO CONVERT pCO2 from uatm to umol/L #####  
-Fw <- function(tempC, Cw.uatm){
+Fw <- function(tempC, StmpCO2){
   StmpCO2.umol <- StmpCO2*(1/0.08205601)*(1/(10^-3))*(1/temp_equil.K)/1000
   StmpCO2.umol
 }
@@ -71,21 +71,21 @@ K2calc<- function(temp_samp) { 10^( (-2902.39/(273.15+temp_samp)) + 6.498 -0.023
 ## See R Markdown file (XXXXXXX) for derivation of equations
 # H=H+ 
 # A=alkalinity in umol/L
-# C=CO2 in umol/L 
+# StmpCO2.umol=CO2 in umol/L 
 # B=bicarbonate 
 # Ca=carbonate 
 # D=DIC in umol/L
 # A_check=alkalinity check
-Carbfrom_C_A <- function(K1, K2, C, A){
-  H <- (((-K1*C))-sqrt(((K1*C)^2)-(4*-1*A*2*K1*K2*C)))/(2*-1*A)
+Carbfrom_C_A <- function(K1, K2, StmpCO2.umol, A){
+  H <- (((-K1*StmpCO2.umol))-sqrt(((K1*StmpCO2.umol)^2)-(4*-1*A*2*K1*K2*StmpCO2.umol)))/(2*-1*A)
   pH <- -1*log10(H)
-  B <- (K1*C)/H
+  B <- (K1*StmpCO2.umol)/H
   Ca <- (K2*B)/H
-  D <- C + B + Ca
+  D <- StmpCO2.umol + B + Ca
   A_check <- B + 2*Ca
   
-  l <- list(H_minus, pH, C, B, Ca, D, A, A_check)
-  names(l) <- c("H", "pH", "C", "B", "Ca", "D", "A","A check")
+  l <- list(H_minus, pH, StmpCO2.umol, B, Ca, D, A, A_check)
+  names(l) <- c("H", "pH", "StmpCO2.umol", "B", "Ca", "D", "A","A check")
   DIC<-D
   return(l)
 }
@@ -94,24 +94,57 @@ Carbfrom_C_A <- function(K1, K2, C, A){
 ## Originally from Dickenson et al. 2007--Chapter 4, highlighted again by Koschorreck et al. for freshwater
 
 DIC_correction<-function(CO2_pre,CO2_post,vol_hs,temp_equil,vol_samp){
-  delta_co2<-((CO2_pre-CO2_post)*vol_hs)/0.08205601*temp_equil
-  delta_DIC<-delta_co2/(vol_samp*0.9998395)
+  delta_co2<-((CO2_pre-CO2_post)*vol_hs)/R*temp_equil
+  delta_DIC<-delta_co2/(vol_samp*dens)
+  delta_DIC
   }
 
 
-Carbfrom_D_A <- function(K1, K2, D_corr, A){
-  H <- ((-1*K1*(A-D_corr))+sqrt((B^2)-(4*A*(A-(2*D_corr))*K1*K2)))/(2*A)
+Carbfrom_D_A <- function(K1, K2, DIC_corr, A){
+  H <- ((-1*K1*(A-DIC_corr))+sqrt((B^2)-(4*A*(A-(2*DIC_corr))*K1*K2)))/(2*A)
   pH <- -1*log10(H)
-  B <- (D_corr*K1*H)/((H^2)+(K1*H)+(K1*K2))
-  Ca <- (D_corr*K1*K2)/((H^2)+(K1*H)+(K1*K2))
-  C_corr <- (H*B)/K1
+  B <- (DIC_corr*K1*H)/((H^2)+(K1*H)+(K1*K2))
+  Ca <- (DIC_corr*K1*K2)/((H^2)+(K1*H)+(K1*K2))
+  CO2 <- (H*B)/K1
   D_check <- C + B + Ca
   A_check <- B + 2*Ca
   
-  l <- list(H, pH, B, Ca, C_corr, D_check, A_check)
+  l <- list(H, pH, B, Ca, CO2, D_check, A_check)
   names(l) <- c("H", "pH", "B", "Ca", "C", "D_check", "A check")
   return(l)
+  CO2_corr<-CO2
 }
+
+#################################################
+####Knit functions together to calculate CO2######
+#################################################
+##Load data
+#Constants
+R= 0.08205601 # gas constant in L*atm/mol*K
+dens=0.9998395 # density of freshwater
+
+#Input variables
+temp_equil=        # temperature of water immediately after equilibriaum in C
+temp_samp=         # temperature of water at the time of sampling in C
+press_samp=        # pressure at the time of sampling in atm
+vol_hs=            # volume of headspace in mL
+vol_samp=          # volume of water sample in mL
+CO2_pre=           # pCO2 of headspace before equilibrium (zero if using zero air) # uatm or ppmv 
+CO2_post=          # pCO2 of hs after equilibrium  # uatm or ppmv
+A=                 # alkalinity in umol/L
+
+Calculate_CO2<-function(temp_equil, temp_samp, press_samp, vol_hs, vol_samp, CO2_pre,CO2_post, A){
+  StmpCO2 <-StmCO2fromSamp(temp_equil, temp_samp, press_samp, vol_hs, vol_samp, CO2_pre,CO2_post)
+  StmpCO2.umol <-Fw(tempC, StmpCO2)
+  K1<-K1calc(temp_equil)
+  K2<-K2calc(temp_equil)
+  DIC<-Carbfrom_C_A(K1, K2, StmpCO2.umol, A)
+  delta_DIC<-DIC_correction(CO2_pre,CO2_post,vol_hs,temp_equil,vol_samp)
+  DIC_corr<-DIC+delta_DIC
+  CO2_corr<-Carbfrom_D_A(K1, K2, DIC_corr, A)
+  }
+
+Calculate_CO2(temp_equil, temp_samp, press_samp, vol_hs, vol_samp, CO2_pre,CO2_post,A)
 
 
 
