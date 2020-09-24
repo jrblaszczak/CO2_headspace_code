@@ -1,26 +1,30 @@
 
-library(plyr)
-library(dplyr)
-library(readr)     
-library(ggplot2)
-library(cowplot)
-library(reshape2)
-library(xts)
-library(dygraphs)
-library(tidyr)
+##Load data 
+data<-sum_file_final
 
-###########################################
-##Load Data
-###########################################
+##Load data
+#Constants
+R= 0.08205601 # gas constant in L*atm/mol*K
+dens=0.9998395 # density of freshwater
 
-## Prior to running the rest of the code
-## 1) Set the wd to folder location of the raw Picarro dat files and meta data
-## 2) Specify meta file name
-meta_file_name <- "2020_08_04_13CO2.test2.txt"
-## 3) Specify start time of Picarro run (using Picarro time)
-picarro_start_time <- "2020-08-04 19:00:00"
-## 4) Specify notes file name
-notes_file_name <- "Chamber_test.run_08.04.2020.csv"
+#Input variables
+temp_equil=data$temp_equil        # temperature of water immediately after equilibriaum in C
+temp_samp=data$temp_samp         # temperature of water at the time of sampling in C
+press_samp=data$press_samp        # pressure at the time of sampling in atm
+vol_hs=data$vol_hs            # volume of headspace in mL
+vol_samp=data$vol_samp          # volume of water sample in mL
+CO2_pre=data$CO2_pre           # pCO2 of headspace before equilibrium (zero if using zero air) # uatm or ppmv 
+CO2_post=data$CO2_post          # pCO2 of hs after equilibrium  # uatm or ppmv
+A=data$alkalinity                 # alkalinity in umol/L
+
+Calculate_CO2(temp_equil, temp_samp, press_samp, vol_hs, vol_samp, CO2_pre,CO2_post,A)
+
+############
+## Export
+############
+write.csv(sum_file_final, "2020_09_23_CO2.csv",row.names = FALSE)
+
+
 
 ###########################################
 ##Calculate pCO2 of water from pCO2 headspace
@@ -118,20 +122,7 @@ Carbfrom_D_A <- function(K1, K2, DIC_corr, A){
 #################################################
 ####Knit functions together to calculate CO2######
 #################################################
-##Load data
-#Constants
-R= 0.08205601 # gas constant in L*atm/mol*K
-dens=0.9998395 # density of freshwater
 
-#Input variables
-temp_equil=        # temperature of water immediately after equilibriaum in C
-temp_samp=         # temperature of water at the time of sampling in C
-press_samp=        # pressure at the time of sampling in atm
-vol_hs=            # volume of headspace in mL
-vol_samp=          # volume of water sample in mL
-CO2_pre=           # pCO2 of headspace before equilibrium (zero if using zero air) # uatm or ppmv 
-CO2_post=          # pCO2 of hs after equilibrium  # uatm or ppmv
-A=                 # alkalinity in umol/L
 
 Calculate_CO2<-function(temp_equil, temp_samp, press_samp, vol_hs, vol_samp, CO2_pre,CO2_post, A){
   StmpCO2 <-StmCO2fromSamp(temp_equil, temp_samp, press_samp, vol_hs, vol_samp, CO2_pre,CO2_post)
@@ -144,16 +135,6 @@ Calculate_CO2<-function(temp_equil, temp_samp, press_samp, vol_hs, vol_samp, CO2
   CO2_corr<-Carbfrom_D_A(K1, K2, DIC_corr, A)
   }
 
-Calculate_CO2(temp_equil, temp_samp, press_samp, vol_hs, vol_samp, CO2_pre,CO2_post,A)
-
-
-
-
-
-############
-## Export
-############
-write.csv(sum_file_final, "2020_08_04_13CO2_QAQC.csv",row.names = FALSE)
 
 
 
