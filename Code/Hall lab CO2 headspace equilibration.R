@@ -22,10 +22,10 @@ Calculate_CO2<-function(temp_equil, temp_samp, press_samp, vol_hs, vol_samp, CO2
   StmpCO2.umol <-Fw(tempC, StmpCO2)
   K1<-K1calc(temp_equil)
   K2<-K2calc(temp_equil)
-  Carbfrom_C_A(K1, K2, StmpCO2.umol , A)
+  Carb1<-Carbfrom_C_A(K1, K2, StmpCO2.umol , A)
   delta_DIC<-DIC_correction(CO2_pre,StmpCO2,vol_hs,temp_equil,vol_samp)
   DIC_corr<-Carb1$D+delta_DIC
-  CO2_corr<-Carbfrom_D_A(K1, K2, DIC_corr, A)
+  Carb2<-Carbfrom_D_A(K1, K2, DIC_corr, A)
 }
 
 
@@ -101,6 +101,7 @@ Carbfrom_C_A <- function(K1, K2, StmpCO2.umol , A){
   A_check <- B + 2*Ca
   Carb1 <- list(H, pH, StmpCO2.umol , B, Ca, D, A, A_check)
   names(Carb1) <- c("H", "pH", "StmpCO2.umol ", "B", "Ca", "D", "A","A check")
+  Carb1
   }
 
 ### Function to calculate correction of perturbed sample for DIC before equilibration
@@ -126,10 +127,10 @@ Carbfrom_D_A <- function(K1, K2, DIC_corr, A){
   D_check <- CO2 + B + Ca
   A_check <- B + 2*Ca
   
-  l <- list(H, pH, B, Ca, CO2, D_check, A_check)
-  names(l) <- c("H", "pH", "B", "Ca", "C", "D_check", "A check")
-  return(l)
-  CO2_corr<-CO2
+  Carb2 <- list(H, pH, B, Ca, CO2, D_check, A_check)
+  names(Carb2) <- c("H", "pH", "B", "Ca", "C", "D_check", "A check")
+  return(Carb2)
+  
 }
 
 #################################################
