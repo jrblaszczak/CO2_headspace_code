@@ -108,7 +108,7 @@ Carbfrom_C_A <- function(K1, K2, StmpCO2.umol , A){
 ## Originally from Dickenson et al. 2007--Chapter 4, highlighted again by Koschorreck et al. for freshwater
 
 DIC_correction<-function(CO2_pre,CO2_post,vol_hs,temp_equil,vol_samp){
-  delta_co2<-(((CO2_pre/1000)-(CO2_post/1000))*(vol_hs/1000))/R*(temp_equil + 273.15)
+  delta_co2<-(((CO2_pre/1000/1000)-(CO2_post/1000/1000))*(vol_hs/1000))/R*(temp_equil + 273.15)
   delta_DIC<-delta_co2/(vol_samp*dens)
   delta_DIC
   }
@@ -119,19 +119,24 @@ DIC_corr<-DIC$D+delta_DIC
 
 
 Carbfrom_D_A <- function(K1, K2, DIC_corr, A){
-  H <- ((-1*K1*(A-DIC_corr))+sqrt((B^2)-(4*A*(A-(2*DIC_corr))*K1*K2)))/(2*A)
-  pH <- -1*log10(H)
-  B <- (DIC_corr*K1*H)/((H^2)+(K1*H)+(K1*K2))
-  Ca <- (DIC_corr*K1*K2)/((H^2)+(K1*H)+(K1*K2))
-  CO2 <- (H*B)/K1
-  D_check <- CO2 + B + Ca
-  A_check <- B + 2*Ca
+  a <- A
+  b <- K1*(A-DIC_corr)
+  c <- (A-(2*DIC_corr))*K1*K2
+  H_t <- ((-1*b)+sqrt((b^2)-(4*a*c)))/(2*a)
   
-  Carb2 <- list(H, pH, B, Ca, CO2, D_check, A_check)
-  names(Carb2) <- c("H", "pH", "B", "Ca", "C", "D_check", "A check")
+  pH_t <- -1*log10(H_t)
+  
+  B_t <- (DIC_corr*K1*H_t)/((H_t^2)+(K1*H_t)+(K1*K2))
+  Ca_t <- (DIC_corr*K1*K2)/((H_t^2)+(K1*H_t)+(K1*K2))
+  
+  C_t <- (H_t*B_t)/K1
+  D2 <- C_t + B_t + Ca_t
+  A2_check <- B_t + 2*Ca_t
+  D_check <- C_t + B_t + Ca_t
+  Carb2 <- list(H_t, pH_t, B_t, Ca_t, C_t, D_check, A2_check)
+  names(Carb2) <- c("H", "pH", "B", "Ca", "CO2", "D_check", "A check")
   return(Carb2)
-  
-}
+  }
 
 #################################################
 ####Knit functions together to calculate CO2######
