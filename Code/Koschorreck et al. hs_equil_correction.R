@@ -68,12 +68,12 @@
 #         Salinity # Salinity in PSU, set to zero if option in 10 is set to 1.
 #
 #
-#EXAMPLE OF USE:
-source("Rheadspace.R")
-data<-read.csv("2020_08_17_CO2_carbonate correction.csv")
- pCO2 <- Rheadspace(data)
+# EXAMPLE OF USE:
+# source("Rheadspace.R")
+# data<-read.csv("2020_08_17_CO2_carbonate correction.csv")
+# pCO2 <- Rheadspace(data)
  
- dataset <- read.csv("R_test_data.csv")
+# dataset <- read.csv("R_test_data.csv")
 #  pCO2 <- Rheadspace(dataset)
 #
 # OUTPUT: a data frame containing:
