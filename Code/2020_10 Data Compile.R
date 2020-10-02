@@ -53,16 +53,17 @@ hs <- hs[order(hs$Site, hs$Date, hs$Time),]
 # The columns names must be:
 # 
 # 1. Sample.ID 
-# 2. HS.pCO2.before
-# 3. HS.pCO2.after
-# 4. Temp.insitu
-# 5. Temp.equil
-# 6. Alkalinity.measured
-# 7. Volume.gas
-# 8. Volume.water
-# 9. Bar.pressure
-# 10. Constants
-# 11. Salinity
+# 2. HS.pCO2.before #the pCO2 (ppmv) of the headspace "before" equilibration (e.g. zero for nitrogen)
+# 3. HS.pCO2.after #the measured pCO2 (ppmv) of the headspace "after" equilibration
+# 4. Temp.insitu #in situ (field) water temperature in degrees celsius
+# 5. Temp.equil #the water temperature after equilibration in degree celsius
+# 6. Alkalinity.measured #Total alkalinity (micro eq/L) of the water sample
+# 7. Volume.gas #Volume of gas in the headspace vessel (mL)
+# 8. Volume.water #Volume of water in the headspace vessel (mL)
+# 9. Bar.pressure #Barometric pressure at field conditions in kPa. 101.325 kPa = 1 atm   
+# 10. Constants #Set of constants for carbonate equilibrium calculations (1=Freshwater; 2=Estuarine; 3=Marine) 
+# 11. Salinity # Salinity in PSU, set to zero if option in 10 is set to 1.
+
 
 names(hs)
 # create each column if does not already exist
@@ -71,13 +72,21 @@ hs$HS.pCO2.before <- 0
 hs$HS.pCO2.after <- hs$CO2 ## check if units correct
 hs$Temp.insitu <- hs$WaterTemp_C
 hs$Temp.equil <- hs$WaterTemp_C ## assuming the temperature is the same
-hs$Alkalinity.measured <- hs$Alk_mgLCaCO3
+hs$Alkalinity.measured <- hs$Alk_mgLCaCO3/50.04345 #mg/mEq to get meq/L from mg/L
+hs$Volume.gas <- hs$air_mL
+hs$Volume.water <- hs$H2O_mL
+hs$Bar.pressure <- hs$Baro_inHg*3.38639
+hs$Constants <- 1
+hs$Salinity <- 0
 
-
-
-
-
-
+## Final df
+df <- hs[,c("Sample.ID","HS.pCO2.before","HS.pCO2.after",
+            "Temp.insitu","Temp.equil","Alkalinity.measured",
+            "Volume.gas","Volume.water","Bar.pressure",
+            "Constants","Salinity")]
+## Export
+write.csv(df,"2020_10_02_HScorrection_allformatted.csv")
+write.csv(hs,"2020_10_02_HScorrection_preformat.csv")
 
 
 
