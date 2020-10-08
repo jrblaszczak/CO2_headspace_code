@@ -166,7 +166,7 @@ DIC_ori <- DIC_eq + (pCO2_eq[i] - pCO2_headspace[i])/1000000/(R*(temp_eq[i]+273.
 
 #Hall
 DIC_correction<-function(CO2_pre,CO2_post,vol_hs,temp_equil,vol_samp){
-  delta_mol<-((CO2_pre/(1000*1000))-(CO2_post/(1000*1000)))*(vol_hs)/(R*(temp_equil + 273.15))
+  delta_mol<-((CO2_post/(1000*1000))-(CO2_pre/(1000*1000)))*(vol_hs)/(R*(temp_equil + 273.15))
   delta_DIC<-delta_mol/(dens*vol_samp)
   delta_DIC
 }
