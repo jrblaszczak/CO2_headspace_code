@@ -1,13 +1,13 @@
 ---
-title: "Differences between Kos and Hall"
+title: "Differences between Kos et al. and Hall lab for calculating CO2 during headspace equilirations"
 author: "Matt T"
 date: "9/25/2020"
 output:
   html_document: default
   pdf_document: default
 ---
-## Calculations for CO2 concentration in water at equilibrium
-Kos seems to skip parts of calculating CO2 in water based on the code. Their eqn. 1 and code do not match. The Hall code matches the Kos eqn. 1.
+## Calculations for CO2 concentration in the sample at equilibrium
+Kos seems to skip parts of calculating CO2 in the sample. Their eqn. 1 and code do not match. Although, some of the calculations are done in the code for calculating the corrected DIC. The Hall code matches the Kos eqn. 1.
 ```{r error=TRUE}
 #Kos
 Kh = 10^((-60.2409+93.4517*(100/(273.15+temp_eq[i]))+23.3585*log((273.15+temp_eq[i])/100))/log(10)) # mol/L/atm equilibration conditions
@@ -46,6 +46,14 @@ HS.ratio=vol_hs/vol_samp
 Kh = 10^((-60.2409+93.4517*(100/(273.15+temp_eq))+23.3585*log((273.15+temp_eq)/100))/log(10)) # mol/L/atm equilibration conditions
 co2 <- Kh * pCO2_eq/1000000
 
+  #  h_all <- polyroot(c(-(2*K1*K2*co2),-(co2*K1+Kw),AT,1))
+  #  real<-Re(h_all)
+  #  h <-real[which(real>0)]
+  #  DIC_eq <- co2 * (1 + K1/h + K1 * K2/(h * h))
+    
+    #DIC in the original sample
+  # DIC_ori <- DIC_eq + (pCO2_eq[i] - pCO2_headspace[i])/1000000/(R*(temp_eq[i]+273.15))*HS.ratio
+
 #Run Hall lab
 StmpCO2<-StmCO2fromSamp(temp_equil, temp_samp, press_samp, vol_hs, vol_samp, CO2_pre,CO2_post)
 
@@ -56,9 +64,6 @@ Fw <- function(temp_equil, StmpCO2){
 }
 
 StmpCO2.umol<-Fw(temp_equil,StmpCO2)
-
-
-
 
 ```
 
@@ -84,8 +89,8 @@ Kos.K1 ## 4.148323e-07
 Kos.K2 ## 4.199279e-11
 
 #Hall
-Hall.K1<- function(temp_equil) { 10^( (-3404.71/(273.15+temp_equil)) + 14.844 -0.033*(temp_equil+273.15) )}
-Hall.K2<- function(temp_equil) { 10^( (-2902.39/(273.15+temp_equil)) + 6.498 -0.0238*(temp_equil+273.15) )}
+Hall.K1<- function(temp_equil) { 10^( (-3404.71/(temp_equil)) + 14.844 -0.033*(temp_equil) )}
+Hall.K2<- function(temp_equil) { 10^( (-2902.39/(temp_equil)) + 6.498 -0.0238*(temp_equil) )}
 Hall.K1(temp_equil) ## 3.596046e-07
 Hall.K2(temp_equil) ## 4.171869e-11
 
@@ -180,7 +185,44 @@ DIC_corr<-Carb1$D+delta_DIC
 DIC_corr
 ```
 
+## Calculating the original CO2
+Kos and Hall use different approaches that yield the same answer.
+```{r warning=TRUE,error=TRUE}
+#Kos
+h_all <- polyroot(c(-(K1*K2*Kw),K1*K2*AT-K1*Kw-2*DIC_ori*K1*K2,AT*K1-Kw+K1*K2-DIC_ori*K1,AT+K1,1))
+    real<-Re(h_all)
+    h <-real[which(real>0)]
+    
+    co2 <- h* (DIC_ori * h * K1/(h * h + K1 * h + K1 * K2)) / K1
+   
 
+#Hall
+Carbfrom_D_A <- function(K1, K2, DIC_corr, A){
+  a <- A
+  b <- K1*(A-DIC_corr)
+  c <- (A-(2*DIC_corr))*K1*K2
+  H_t <- ((-1*b)+sqrt((b^2)-(4*a*c)))/(2*a)
+  
+  pH_t <- -1*log10(H_t)
+  
+  B_t <- (DIC_corr*K1*H_t)/((H_t^2)+(K1*H_t)+(K1*K2))
+  Ca_t <- (DIC_corr*K1*K2)/((H_t^2)+(K1*H_t)+(K1*K2))
+  
+  C_t <- (H_t*B_t)/K1
+  D2 <- C_t + B_t + Ca_t
+  A2_check <- B_t + 2*Ca_t
+  D_check <- C_t + B_t + Ca_t
+  Carb2 <- list(H_t, pH_t, B_t, Ca_t, C_t, D_check, A2_check)
+  names(Carb2) <- c("H", "pH", "B", "Ca", "CO2", "D_check", "A check")
+  return(Carb2)
+  }
 
+##Test with fake data
+#Kos
+co2 ## 800.0000
 
+#Hall
+Carb2<-Carbfrom_D_A(K1, K2, DIC_corr, A)
+Carb2$CO2 ## 800
 
+```
