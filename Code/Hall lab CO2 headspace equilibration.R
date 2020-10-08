@@ -66,7 +66,7 @@ StmCO2fromSamp <- function(temp_equil, temp_samp, press_samp, vol_hs, vol_samp, 
   KH.equil <- KH.CO2(temp_equil) # mol L-1 atm-1
   KH.samp <- KH.CO2(temp_samp) # mol L-1 atm-1
   StmpCO2 <- (CO2_post*KH.equil+(hsRatio*(CO2_post-CO2_pre)/molV))/KH.samp
-  }
+}
 
 ##### FUNCTION TO CONVERT pCO2 from uatm to umol/L #####  
 Fw <- function(tempC, StmpCO2){
@@ -80,8 +80,8 @@ Fw <- function(tempC, StmpCO2){
 ###########################################
 
 ## Functions to determine equilibrium constants dependent on temperature of water when sampled
-K1calc<- function(temp_samp) { 10^( (-3404.71/(273.15+temp_samp)) + 14.844 -0.033*(temp_samp+273.15) )}
-K2calc<- function(temp_samp) { 10^( (-2902.39/(273.15+temp_samp)) + 6.498 -0.0238*(temp_samp+273.15) )}
+K1calc<- function(temp_equil) { 10^( (-3404.71/(273.15+temp_equil)) + 14.844 -0.033*(temp_equil+273.15) )}
+K2calc<- function(temp_equil) { 10^( (-2902.39/(273.15+temp_equil)) + 6.498 -0.0238*(temp_equil+273.15) )}
 
 ### Function to solve carbonate chemistry using CO2 & Alkalinity
 ## See R Markdown file (XXXXXXX) for derivation of equations
@@ -108,7 +108,7 @@ Carbfrom_C_A <- function(K1, K2, StmpCO2.umol , A){
 ## Originally from Dickenson et al. 2007--Chapter 4, highlighted again by Koschorreck et al. for freshwater
 
 DIC_correction<-function(CO2_pre,CO2_post,vol_hs,temp_equil,vol_samp){
-  delta_co2<-(((CO2_pre/1000/1000)-(CO2_post/1000/1000))*(vol_hs/1000))/R*(temp_equil + 273.15)
+  delta_co2<-(((CO2_post/1000/1000)-(CO2_pre/1000/1000))*(vol_hs/1000))/R*(temp_equil + 273.15)
   delta_DIC<-delta_co2/(vol_samp*dens)
   delta_DIC
   }
