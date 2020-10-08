@@ -28,8 +28,8 @@ Calculate_CO2<-function(temp_equil, temp_samp, press_samp, vol_hs, vol_samp, CO2
   Carb2<-Carbfrom_D_A(K1, K2, DIC_corr, A)
 }
 
-
-Calculate_CO2(temp_equil, temp_samp, press_samp, vol_hs, vol_samp, CO2_pre,CO2_post,A)
+##Returns a list with the corrected DIC (D) and CO2 
+data<-Calculate_CO2(temp_equil, temp_samp, press_samp, vol_hs, vol_samp, CO2_pre,CO2_post,A)
 
 ############
 ## Export
@@ -51,6 +51,7 @@ KH.CO2 <- function(temp_equil){
 }
 
 ##### FUNCTION TO ESTIMATE STREAM pCO2 from headspace CO2 #####
+#
 # R= gas constant (0.08205601) in L*atm/mol*K
 # temp_equil= temperature of water immediately after equilibriaum in C
 # temp_samp= temperature of water at the time of sampling in C
@@ -80,8 +81,10 @@ Fw <- function(tempC, StmpCO2){
 ###########################################
 
 ## Functions to determine equilibrium constants dependent on temperature of water when sampled
-K1calc<- function(temp_equil) { 10^( (-3404.71/(273.15+temp_equil)) + 14.844 -0.033*(temp_equil+273.15) )}
-K2calc<- function(temp_equil) { 10^( (-2902.39/(273.15+temp_equil)) + 6.498 -0.0238*(temp_equil+273.15) )}
+#From Milerno et al 2006 "Dissociation constants of carbonic acid in seawater as a function of salinity and temperature"
+K1calc<- function(temp_equil) { 10^-(-126.34048+6320.813/(temp_equil+273.15)+19.568224*log(temp_equil+273.15))}
+K2calc<- function(temp_equil) { 10^-(-90.18333+5143.692/(temp_equil+273.15)+14.613358*log(temp_equil+273.15))}
+
 
 ### Function to solve carbonate chemistry using CO2 & Alkalinity
 ## See R Markdown file (XXXXXXX) for derivation of equations
@@ -115,7 +118,7 @@ DIC_correction<-function(CO2_pre,CO2_post,vol_hs,temp_equil,vol_samp){
 
 ### Apply correction to DIC data from Carb1####
 
-DIC_corr<-DIC$D+delta_DIC
+DIC_corr<-Carb1$D+delta_DIC
 
 
 Carbfrom_D_A <- function(K1, K2, DIC_corr, A){
@@ -150,7 +153,7 @@ Calculate_CO2<-function(temp_equil, temp_samp, press_samp, vol_hs, vol_samp, CO2
   K2<-K2calc(temp_equil)
   DIC<-Carbfrom_C_A(K1, K2, StmpCO2.umol, A)
   delta_DIC<-DIC_correction(CO2_pre,CO2_post,vol_hs,temp_equil,vol_samp)
-  DIC_corr<-DIC+delta_DIC
+  DIC_corr<-Carb1$D+delta_DIC
   CO2_corr<-Carbfrom_D_A(K1, K2, DIC_corr, A)
   }
 
