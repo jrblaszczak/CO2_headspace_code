@@ -1,0 +1,27 @@
+---
+title: "Potential errors in Koschorreck et al. code"
+author: "Matt Trentman"
+date: "9/18/2020"
+output: html_document
+---
+The code below shows how Koschorreck et al. use the alkalinity equation to solve for H^+^
+
+```{r}
+ #DIC at equilibrium
+    co2 <- Kh * pCO2_eq[i]/1000000
+    h_all <- polyroot(c(-(2*K1*K2*co2),-(co2*K1+Kw),AT,1))
+    real<-Re(h_all)
+    h <-real[which(real>0)]
+    DIC_eq <- co2 * (1 + K1/h + K1 * K2/(h * h))
+```
+
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
