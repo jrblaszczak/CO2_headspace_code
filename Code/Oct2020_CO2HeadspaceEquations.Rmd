@@ -23,13 +23,13 @@ Carbon dioxide is one multiple species of carbon that makes up the freshwater di
 (4) $D = [H_{2}CO_{3}] + [HCO_{3}^-] + [CO_{3}^{2-}]$
 
 
-Where $[H_{2}CO_{3}] \approx [CO_{2}]$ measured in the headspace in units $ppmv$, $A$ is streamwater alkalnity concentrations in units $mol$$m^{-3}$, $D$ is the total dissolved inorganic carbon concentrations, and the equilibrium constants $K_1$ and $K_2$ are temperature dependent and can be adjusted according to the following relationships (ref):
+Where $[H_{2}CO_{3}] \approx [CO_{2}]$ measured in the headspace in units $ppmv$, $A$ is streamwater alkalnity concentrations in units $mol$$m^{-3}$, $D$ is the total dissolved inorganic carbon concentrations, and the equilibrium constants $K_1$ and $K_2$ are temperature dependent and can be adjusted according to the following relationships (Millero et al. 2006):
 
-$K_1 = 10^{ (-3404.71/(273.15+T)) + 14.844 -(0.033\times (T+273.15))}$
+$K_1 = 10^{ (-126.34048 + 6320.813/(T+273.15)+19.568224\times log(T+273.15)}$
 
-$K_2 = 10^{ (-2902.39/(273.15+T)) + 6.498 - (0.0238\times (T+273.15))}$
+$K_2 = 10^{ (-90.18333+5143.692/(T+273.15)+14.613358\times log(T+273.15))}$
 
-Where $T$ is streamwater temperature in degrees Celsius.
+Where $T$ is water temperature at equilibration in degrees Celsius.
 
 
 <br/>

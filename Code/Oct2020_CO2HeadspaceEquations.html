@@ -180,14 +180,14 @@ summary {
 </div>
 
 
-<div id="carbon-dioxide-headspace-equilibration-equations" class="section level3">
-<h3>Carbon Dioxide Headspace Equilibration Equations</h3>
+<div id="freshwater-carbonate-equilibration-equations" class="section level3">
+<h3>Freshwater Carbonate Equilibration Equations</h3>
 <div id="j.r.-blaszczak-r.o.-hall-m.t.-trentman" class="section level4">
 <h4>J.R. Blaszczak, R.O. Hall, M.T. Trentman</h4>
 </div>
 <div id="section" class="section level4">
 <h4>2020-10-12</h4>
-<p>Carbon dioxide is one multiple species of carbon that makes up the freshwater dissolved inorganic carbon (DIC) pool. The total DIC pool is the sum of carbon dioxide (<span class="math inline">\(CO_2\)</span>), bicarbonate (<span class="math inline">\(HCO_{3}^-\)</span>), and carbonate (<span class="math inline">\(CO_{3}^{2-}\)</span>) concentrations.The strength of the carbonate buffering system is dependent on pH and alkalinity. Within the pH range of most natural waters, bicarbonate dominates above a pH of 6.4 and in high alkalinity streams such as those found in the western United States, the carbonate buffering system can have a strong influence on the concentrations of CO2 in streams.</p>
+<p>Carbon dioxide is one multiple species of carbon that makes up the freshwater dissolved inorganic carbon (DIC) pool. The total DIC pool is the sum of carbon dioxide (<span class="math inline">\(CO_2\)</span>), bicarbonate (<span class="math inline">\(HCO_{3}^-\)</span>), and carbonate (<span class="math inline">\(CO_{3}^{2-}\)</span>) concentrations.The strength of the carbonate buffering system is dependent on pH and alkalinity.</p>
 <p><strong>There are a series of four equilibrium equations that describe the carbonate buffering system, as follows:</strong></p>
 <ol style="list-style-type: decimal">
 <li><p><span class="math inline">\(K_{1} = \frac{[HCO_{3}^-][H^+]}{[H_{2}CO_{3}]}\)</span></p></li>
@@ -195,10 +195,10 @@ summary {
 <li><p><span class="math inline">\(A = [HCO_{3}^-] + 2[CO_{3}^2-]\)</span></p></li>
 <li><p><span class="math inline">\(D = [H_{2}CO_{3}] + [HCO_{3}^-] + [CO_{3}^{2-}]\)</span></p></li>
 </ol>
-<p>Where <span class="math inline">\([H_{2}CO_{3}] \approx [CO_{2}]\)</span>, <span class="math inline">\(A\)</span> is streamwater alkalnity concentrations in units <span class="math inline">\(mol\)</span><span class="math inline">\(m^{-3}\)</span>, <span class="math inline">\(D\)</span> is the total dissolved inorganic carbon concentrations, and the equilibrium constants <span class="math inline">\(K_1\)</span> and <span class="math inline">\(K_2\)</span> are temperature dependent and can be adjusted according to the following relationships (ref):</p>
-<p><span class="math inline">\(K_1 = 10^{ (-3404.71/(273.15+T)) + 14.844 -(0.033\times (T+273.15))}\)</span></p>
-<p><span class="math inline">\(K_2 = 10^{ (-2902.39/(273.15+T)) + 6.498 - (0.0238\times (T+273.15))}\)</span></p>
-<p>Where <span class="math inline">\(T\)</span> is streamwater temperature in degrees Celsius.</p>
+<p>Where <span class="math inline">\([H_{2}CO_{3}] \approx [CO_{2}]\)</span> measured in the headspace in units <span class="math inline">\(ppmv\)</span>, <span class="math inline">\(A\)</span> is streamwater alkalnity concentrations in units <span class="math inline">\(mol\)</span><span class="math inline">\(m^{-3}\)</span>, <span class="math inline">\(D\)</span> is the total dissolved inorganic carbon concentrations, and the equilibrium constants <span class="math inline">\(K_1\)</span> and <span class="math inline">\(K_2\)</span> are temperature dependent and can be adjusted according to the following relationships (Millero et al. 2006):</p>
+<p><span class="math inline">\(K_1 = 10^{ (-126.34048 + 6320.813/(T+273.15)+19.568224\times log(T+273.15)}\)</span></p>
+<p><span class="math inline">\(K_2 = 10^{ (-90.18333+5143.692/(T+273.15)+14.613358\times log(T+273.15))}\)</span></p>
+<p>Where <span class="math inline">\(T\)</span> is water temperature at equilibration in degrees Celsius.</p>
 <p><br /></p>
 <p><strong>First, we will use the measured alkalinity and <span class="math inline">\(CO_{2}\)</span> concentrations to solve for the first distribution of carbonate species.</strong></p>
 <p>Start by rearranging <span class="math inline">\(K_{1}\)</span> to solve for <span class="math inline">\([HCO_{3}^-]\)</span>:</p>
@@ -267,35 +267,10 @@ Carbfrom_D_A &lt;- function(K1, K2, D1, A){
   names(l) &lt;- c(&quot;H&quot;, &quot;pH&quot;, &quot;C&quot;, &quot;B&quot;, &quot;Ca&quot;, &quot;D&quot;, &quot;A&quot;, &quot;A check&quot;)
   return(l)
 }</code></pre>
-<p><strong>Now we can import data and run the model using data from different sites</strong></p>
-<pre class="r"><code>## Data preparation -- import discrete samples
-
-## Import
-iso &lt;- read.csv(&quot;2019_10_09_Discrete_data_allsites.csv&quot;, header=T)
-iso &lt;- iso[,c(&quot;SampleDateTime&quot;,&quot;Site&quot;,&quot;CO2&quot;,&quot;delCO2&quot;,&quot;WaterTemp_C&quot;,&quot;Baro_inHg&quot;,&quot;Alk_mol_m3&quot;)]
-colnames(iso)[colnames(iso)==&quot;SampleDateTime&quot;] &lt;- &quot;DateTime&quot;
-iso$DateTime &lt;- as.POSIXct(as.character(iso$DateTime), format=&quot;%Y-%m-%d %H:%M:%S&quot;)
-
-## Recalc 13C based on CO2 (which is 12CO2_dry) &amp; delCO2
-Rstd &lt;- 0.0112372
-iso$C13_CO2 &lt;- Rstd*(1+(iso$delCO2/1000))*iso$CO2
-## Summarize data based on time point
-iso_mean &lt;- iso %&gt;%
-  group_by(DateTime,Site) %&gt;%
-  summarise_all(mean)
-
-## Combine iso with sensor data for temp and light data
-iso_df &lt;- merge(iso_mean, df, by=&quot;DateTime&quot;)
-iso_df &lt;- iso_df[,c(&quot;DateTime&quot;,&quot;delCO2&quot;,&quot;C13_CO2&quot;,&quot;strmCO2_umolL&quot;,
-                    &quot;temp&quot;,&quot;oxy&quot;,&quot;light&quot;,&quot;baro_atm&quot;,&quot;CO2_umolL&quot;)]</code></pre>
 </div>
-<div id="c.-stable-carbon-isotopic-signature-of-co2-based-aquatic-ecosystem-metabolism" class="section level4">
-<h4>C. Stable carbon isotopic signature of CO2 based aquatic ecosystem metabolism</h4>
-<p>Kinetic fractionation: Photosynthesis Gas Exchange Respiration</p>
-<p>Equilibrium fractionation (temperature dependent): Carbonate speciation Solubility</p>
-</div>
-<div id="citations" class="section level4">
-<h4>CITATIONS</h4>
+<div id="references" class="section level4">
+<h4>References</h4>
+<p>Millero et al. 2006</p>
 </div>
 </div>
 
