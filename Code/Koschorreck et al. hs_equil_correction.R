@@ -68,6 +68,30 @@
 #         Salinity # Salinity in PSU, set to zero if option in 10 is set to 1.
 #
 #
+<<<<<<< HEAD
+#EXAMPLE OF USE:
+source("Rheadspace.R")
+data<-read.csv("2020_09_23_CO2_QAQC.csv")
+
+Sample.ID<-data$Syringe 
+HS.pCO2.before<-data$CO2_pre
+HS.pCO2.after<-data$CO2_post
+Temp.insitu<-data$temp_samp    
+Temp.equil<-data$temp_equil
+Alkalinity.measured<-data$alkalinity
+Volume.gas<-data$vol_hs 
+Volume.water<-data$vol_samp
+Bar.pressure<-data$press_samp
+Constants=1
+Salinity<-0
+
+data<-cbind(Sample.ID,HS.pCO2.before,HS.pCO2.after,Temp.insitu,Temp.equil,Alkalinity.measured,Volume.gas,Volume.water,Bar.pressure,Constants,Salinity)
+data<-as.data.frame(data)
+
+
+pCO2 <- Rheadspace(data)
+ 
+
 # EXAMPLE OF USE:
 # source("Rheadspace.R")
 # data<-read.csv("2020_08_17_CO2_carbonate correction.csv")
@@ -75,6 +99,7 @@
  
 # dataset <- read.csv("R_test_data.csv")
 #  pCO2 <- Rheadspace(dataset)
+
 #
 # OUTPUT: a data frame containing:
 #      1. Sample IDs
@@ -155,7 +180,7 @@ Rheadspace <-  function(...){
     # K2 = the equilibrium constant between HCO3- and CO3 2-
     
     Kw = 10^(-(0.0002*((temp_eq[i])^2)-0.0444*temp_eq[i]+14.953))
-    Kh = 10^((-60.2409+93.4517*(100/(273.15+temp_eq[i]))+23.3585*log((273.15+temp_eq[i])/100))/log(10)) # mol/L/atm equilibration conditions
+    Kh = 10^((-60.2409+93.4517*(100/(273.15+20))+23.3585*log((273.15+20)/100))/log(10)) # mol/L/atm equilibration conditions
     Kh2 = 10^((-60.2409+93.4517*(100/(273.15+temp_insitu[i]))+23.3585*log((273.15+temp_insitu[i])/100))/log(10)) # mol/L/atm original conditions
     
     if (c_constants == 1) {
@@ -245,3 +270,4 @@ Rheadspace <-  function(...){
   return(pCO2_orig) #Output data frame
   
 }
+ 
