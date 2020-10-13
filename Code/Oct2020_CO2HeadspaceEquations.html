@@ -380,7 +380,7 @@ summary {
 <h4>J.R. Blaszczak, R.O. Hall, M.T. Trentman</h4>
 </div>
 <div id="section" class="section level4">
-<h4>2020-10-12</h4>
+<h4>2020-10-13</h4>
 <p>Carbon dioxide is one multiple species of carbon that makes up the freshwater dissolved inorganic carbon (DIC) pool. The total DIC pool is the sum of carbon dioxide (<span class="math inline">\(CO_2\)</span>), bicarbonate (<span class="math inline">\(HCO_{3}^-\)</span>), and carbonate (<span class="math inline">\(CO_{3}^{2-}\)</span>) concentrations.The strength of the carbonate buffering system is dependent on pH (<span class="math inline">\(-log([H^{+}])\)</span>) and alkalinity (<span class="math inline">\(A_T\)</span>).</p>
 <p><strong>There are a series of four equilibrium equations that describe the carbonate buffering system, as follows:</strong></p>
 <ol style="list-style-type: decimal">
@@ -438,8 +438,14 @@ Carbfrom_C_A &lt;- function(K1, K2, C, A){
 <p>Repeat the same steps except solve for <span class="math inline">\([CO_{3}^{2-}]\)</span> and you get:</p>
 <p><span class="math inline">\([CO_{3}^{2-}] = \frac{K_{1}K_{2}D}{[H^+]^{2} + K_{1}[H^+] + K_{1}K_{2}}\)</span></p>
 <p>In addition, solve for <span class="math inline">\([H^+]\)</span> by plugging the above two solutions (clue: they have the same denominator so it is easier to solve) into the alkalinity equation:</p>
-<p><span class="math inline">\([H^+] = \frac{-K_{1}\times(A_{T}-DIC) + \sqrt{(K_{1}\times(A_{T}-DIC))^2 - 4(A)(K_{1}K_{2}*(A_{T}-2DIC))}}{2\times A_{T}}\)</span></p>
-<p>And fit the model to the measured <span class="math inline">\([CO_2]\)</span> for the next time step using the equation:</p>
+<p><span class="math inline">\(A_{T} = [HCO_{3}^{-}] + 2[CO_{3}^{2-}]\)</span></p>
+<p><span class="math inline">\(A_{T} = \frac{K_{1}[H^+]D}{K_{1}[H^+] + K_{1}K_{2} + [H^+]^{2}} + \frac{2K_{1}K_{2}D}{[H^+]^{2} + K_{1}[H^+] + K_{1}K_{2}}\)</span></p>
+<p><span class="math inline">\(A_{T}\times ([H^+]^{2} + K_{1}[H^+] + K_{1}K_{2}) = K_{1}[H^+]D + 2K_{1}K_{2}D\)</span></p>
+<p>Multiply <span class="math inline">\(A_T\)</span> out and arrange all variables on one side:</p>
+<p><span class="math inline">\(A_{T}[H^+]^{2} + K_{1}(A_T - D)[H^+] + K_{1}K_{2}(A_T - 2D) = 0\)</span></p>
+<p>Then solve for <span class="math inline">\([H^{+}]\)</span> using the quadratic equation:</p>
+<p><span class="math inline">\([H^+] = \frac{-K_{1}\times(A_{T}-DIC) \pm \sqrt{(K_{1}\times(A_{T}-DIC))^2 - 4(A)(K_{1}K_{2}*(A_{T}-2DIC))}}{2\times A_{T}}\)</span></p>
+<p>And fit the DIC model to the measured <span class="math inline">\([CO_2]\)</span> for the next time step using the equation:</p>
 <p><span class="math inline">\([CO_2] = \frac{[HCO_{3}^{-}][H^+]}{K_1}\)</span></p>
 <pre class="r"><code>## In code, step 2 carbonate chemistry from D &amp; A:
 Carbfrom_D_A &lt;- function(K1, K2, D1, A){
@@ -464,7 +470,7 @@ Carbfrom_D_A &lt;- function(K1, K2, D1, A){
 </div>
 <div id="references" class="section level4">
 <h4>References</h4>
-<p>Millero et al. 2006</p>
+<p>Millero, F. J., T. B. Graham, F. Huang, H. Bustos-Serrano, and D. Pierrot. 2006. Dissociation constants of carbonic acid in seawater as a function of salinity and temperature. Marine Chemistry 100:80–94.</p>
 </div>
 </div>
 

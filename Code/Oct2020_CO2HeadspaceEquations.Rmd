@@ -116,11 +116,26 @@ $[CO_{3}^{2-}] = \frac{K_{1}K_{2}D}{[H^+]^{2} + K_{1}[H^+] + K_{1}K_{2}}$
 
 In addition, solve for $[H^+]$ by plugging the above two solutions (clue: they have the same denominator so it is easier to solve) into the alkalinity equation:
 
-$[H^+] = \frac{-K_{1}\times(A_{T}-DIC) + \sqrt{(K_{1}\times(A_{T}-DIC))^2 - 4(A)(K_{1}K_{2}*(A_{T}-2DIC))}}{2\times A_{T}}$
+$A_{T} = [HCO_{3}^{-}] + 2[CO_{3}^{2-}]$
 
-And fit the model to the measured $[CO_2]$ for the next time step using the equation:
+$A_{T} = \frac{K_{1}[H^+]D}{K_{1}[H^+] + K_{1}K_{2} + [H^+]^{2}} + \frac{2K_{1}K_{2}D}{[H^+]^{2} + K_{1}[H^+] + K_{1}K_{2}}$
+
+$A_{T}\times ([H^+]^{2} + K_{1}[H^+] + K_{1}K_{2}) = K_{1}[H^+]D + 2K_{1}K_{2}D$
+
+Multiply $A_T$ out and arrange all variables on one side:
+
+$A_{T}[H^+]^{2} + K_{1}(A_T - D)[H^+] + K_{1}K_{2}(A_T - 2D) = 0$
+
+Then solve for $[H^{+}]$ using the quadratic equation:
+
+$[H^+] = \frac{-K_{1}\times(A_{T}-DIC) \pm \sqrt{(K_{1}\times(A_{T}-DIC))^2 - 4(A)(K_{1}K_{2}*(A_{T}-2DIC))}}{2\times A_{T}}$
+
+And fit the DIC model to the measured $[CO_2]$ for the next time step using the equation:
 
 $[CO_2] = \frac{[HCO_{3}^{-}][H^+]}{K_1}$
+
+
+
 
 
 ```{r eval=FALSE}
@@ -151,7 +166,7 @@ Carbfrom_D_A <- function(K1, K2, D1, A){
 
 #### References
 
-Millero et al. 2006
+Millero, F. J., T. B. Graham, F. Huang, H. Bustos-Serrano, and D. Pierrot. 2006. Dissociation constants of carbonic acid in seawater as a function of salinity and temperature. Marine Chemistry 100:80–94.
 
 
 
