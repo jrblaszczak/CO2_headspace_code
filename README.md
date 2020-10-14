@@ -1,10 +1,10 @@
 # Shared data and code for headspace equilibration corrections
 
+Code folder - code to compare headspace corrections:<br/>
+a. Data Compiler - converting raw data to proper format
+b. ...
+
 Data folder - data files from MT and AZ streams have the following:<br />
 a. Metadata - datetime, location<br />
 b. CO2 concentrations in the headspace after equilibration and measurement on the Picarro<br />
-c. Streamwater temperature data from a miniDOT<br />
-d. Alkalinity, pH, barometric pressure, etc.<br />
-**finish editing parameters here
-
-blah blah blah
+c. Alkalinity, pH, barometric pressure, etc.<br />
