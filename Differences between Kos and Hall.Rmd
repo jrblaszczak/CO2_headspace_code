@@ -1,112 +1,22 @@
 ---
-title: "Differences between Kos et al. and Hall lab for calculating CO2 during headspace equilirations"
-author: "Matt T"
-date: "9/25/2020"
+title: "Code comparison between Koschorreck et al. and Hall lab code for calculating CO~2~ concentration after headspace equilibration"
+authors: "M. T. Trentman, J. R. Blaszczak, R. O. Hall, Jr."
+date: "10/14/2020"
 output:
   html_document: default
   pdf_document: default
 ---
-## Calculations for CO2 concentration in the sample at equilibrium
-Kos seems to skip parts of calculating CO2 in the sample. Their eqn. 1 and code do not match. Although, some of the calculations are done in the code for calculating the corrected DIC. The Hall code matches the Kos eqn. 1.
-```{r error=TRUE}
-#Kos
-Kh = 10^((-60.2409+93.4517*(100/(273.15+temp_eq[i]))+23.3585*log((273.15+temp_eq[i])/100))/log(10)) # mol/L/atm equilibration conditions
-co2 <- Kh * pCO2_eq[i]/1000000
+Below we compare major differences between our group (Hall lab) and that of Koschorreck et al. for calculating the CO~2~ concentration in a water sample after headspace equilibration as a part of our comment to their manuscript in review with Biogeosciences. We compare the approaches used by each group and show that, generally speaking, the different approaches presented here result in the same outcome.  
 
-#Hall
-KH.CO2 <- function(temp_equil){
-  tempK <- temp_equil + 273.15
-  KH.CO2 <- exp( -58.0931 + (90.5069*(100/tempK)) +22.2940*log((tempK/100), base=exp(1)) )
-  KH.CO2
-}
+## Calculating H^+^ and DIC at equilibrium
+Both the Hall lab and Koschorreck et al. appraches use the total alkalinity equation to calculate the H^+^ concentration in the sample, but with different assumptions. The Hall lab assumes that H^+^ and OH^-^ are approximately zero, while Koschorreck et al. include them both in the total alkalinity equation. The assumption that H^+^ and OH^-^ are zero have little if any effect on the accuracy of the H^+^ estimation and allows for solving a 2nd order polynomial, which can be solved algebraically using the quadratic equation (full derivation can be found at https://github.com/jrblaszczak/CO2_headspace_code/tree/master/Code). Koschorreck et al. solve the much more complex 4th order polynomial using the polyroot function. Both approaches result in a similar H^+^ concentration.
 
-StmCO2fromSamp <- function(temp_equil, temp_samp, press_samp, vol_hs, vol_samp, CO2_pre,CO2_post){
-  temp_equil.K <- temp_equil + 273.15
-  molV <- 0.08205601*(temp_equil.K)*(press_samp) # L mol-1
-  hsRatio <- vol_hs/vol_samp
-  KH.equil <- KH.CO2(temp_equil) # mol L-1 atm-1
-  KH.samp <- KH.CO2(temp_samp) # mol L-1 atm-1
-  StmpCO2 <- (CO2_post*KH.equil+(hsRatio*(CO2_post-CO2_pre)/molV))/KH.samp
-}
-
-##Test using fake data to compare CO2 of water estimated from Kos and Hall lab
-temp_eq<-20 #Kos label
-temp_equil<-20 #Hall label
-press_samp<- 1.000
-vol_samp=40
-vol_hs=70 
-temp_samp<-18
-pCO2_eq<-800
-CO2_post<-800
-CO2_pre<-0
-pCO2_headspace<-0
-HS.ratio=vol_hs/vol_samp
-
-#Run Kos
-Kh = 10^((-60.2409+93.4517*(100/(273.15+temp_eq))+23.3585*log((273.15+temp_eq)/100))/log(10)) # mol/L/atm equilibration conditions
-co2 <- Kh * pCO2_eq/1000000
-
-  #  h_all <- polyroot(c(-(2*K1*K2*co2),-(co2*K1+Kw),AT,1))
-  #  real<-Re(h_all)
-  #  h <-real[which(real>0)]
-  #  DIC_eq <- co2 * (1 + K1/h + K1 * K2/(h * h))
-    
-    #DIC in the original sample
-  # DIC_ori <- DIC_eq + (pCO2_eq[i] - pCO2_headspace[i])/1000000/(R*(temp_eq[i]+273.15))*HS.ratio
-
-#Run Hall lab
-StmpCO2<-StmCO2fromSamp(temp_equil, temp_samp, press_samp, vol_hs, vol_samp, CO2_pre,CO2_post)
-
-Fw <- function(temp_equil, StmpCO2){
-  temp_equil.K <- temp_equil + 273.15
-  StmpCO2.umol <- StmpCO2*(1/0.08205601)*(1/(10^-3))*(1/temp_equil.K)/1000
-  StmpCO2.umol
-}
-
-StmpCO2.umol<-Fw(temp_equil,StmpCO2)
-
-```
-
-## Calculations for K1 and K2
-Kos and Hall lab have different equations for estimating K1 and K2. Kos cites  Millero, F. (1979). I checked and could not find the equation/constants in the Millero paper. 
-I am not sure where the Hall lab K1 and K2 calculations are from.
-The approaches give different values for the same temperature.
+The Hall lab and Koschorreck et al. use different calculations to estimate the DIC at equilibrium. Koschorreck et al. use the CO~2~ ionization (alpha) equation to calculate DIC, while the Hall lab uses the individual equations to calculate the carbonate, bicarbonate, and CO2 concentrations, and then adds them up to get DIC. Both approaches result in the same DIC concentration.
 
 ```{r warning=TRUE,error=TRUE}
-#Kos
-K1=10^-(-126.34048+6320.813/(temp_eq[i]+273.15)+19.568224*log(temp_eq[i]+273.15))
-K2=10^-(-90.18333+5143.692/(temp_eq[i]+273.15)+14.613358*log(temp_eq[i]+273.15))
 
-#Hall
-K1calc<- function(temp_equil) { 10^( (-3404.71/(273.15+temp_equil)) + 14.844 -0.033*(temp_equil+273.15) )}
-K2calc<- function(temp_equil) { 10^( (-2902.39/(273.15+temp_equil)) + 6.498 -0.0238*(temp_equil+273.15) )}
-
-##Test at 20C
-#Kos
-Kos.K1=10^-(-126.34048+6320.813/(temp_eq+273.15)+19.568224*log(temp_eq+273.15))
-Kos.K2=10^-(-90.18333+5143.692/(temp_eq+273.15)+14.613358*log(temp_eq+273.15))
-Kos.K1 ## 4.148323e-07
-Kos.K2 ## 4.199279e-11
-
-#Hall
-Hall.K1<- function(temp_equil) { 10^( (-3404.71/(temp_equil)) + 14.844 -0.033*(temp_equil) )}
-Hall.K2<- function(temp_equil) { 10^( (-2902.39/(temp_equil)) + 6.498 -0.0238*(temp_equil) )}
-Hall.K1(temp_equil) ## 3.596046e-07
-Hall.K2(temp_equil) ## 4.171869e-11
-
-```
-
-## Calculating DIC equilibrium
-Both Hall and Kos appraches use the same idea to calculate H^+^ concentrations. Although Kos includes H+ and OH, while Hall lab assumes they are zero. 
-
-The Hall lab and Kos approaches differ in how they they use the estimated H^+^. Kos uses the CO2 ionization (alpha) equation to calculate DIC. Hall lab uses the individual equations for carbonate, bicarbonate, and CO2 and then adds them up to get DIC. 
-
-I ran the same data through both approaches and they yielded the same H^+^ and DIC estimates. Removing the H^+^ and OH from the Kos equation does not have a meaningful effect on the estimates. 
-
-```{r warning=TRUE,error=TRUE}
+###Raw code for each approach
 ##Kos
-#DIC at equilibrium
-    #co2 <- Kh * pCO2_eq[i]/1000000
     h_all <- polyroot(c(-(2*K1*K2*co2),-(co2*K1+Kw),AT,1))
     real<-Re(h_all)
     h <-real[which(real>0)]
@@ -125,8 +35,8 @@ Carbfrom_C_A <- function(K1, K2, StmpCO2.umol , A){
   Carb1
   }
 
-###Test to compare both DIC estimates using the same data.
-#Assume temp at 20C, pCO2=800, Alk=2000 (I made this data up). Calcuate Kh, Kw, K1, and K2 using Kos approach for consistentcy (Remember, we have different equations for K1 and K2).
+###Modified code to compare both DIC estimates using the same data
+#Fake data
 Kh<-0.03916
 Kw<-7.1614*10^-15
 K1<-4.1483*10^-7
@@ -148,45 +58,61 @@ Carb1<-Carbfrom_C_A(K1, K2,StmpCO2.umol, A )
 
 ##Results
 #Kos
-H_all=1.66*10^-7
-DIC_eq=2799
+H_all#1.66*10^-7
+DIC_eq#2799
 
 #Hall
-H=1.66*10^-07
-Carb1$D=2799
+H#1.66*10^-07
+Carb1$D#2799
 ```
+
 ## Calculating the original DIC 
-Kos and Hall have similar approaches for estimating the original DIC. 
-However, Kos accounts for pre and post equilibrium CO2 differently than Hall does. The Kos approach disagrees with Dickenson et al 2007 (SOP 4, eqn 4). This difference determines whether the DIC correction is positive or negative. 
+Both the Hall lab and Koschorreck et al. have mostly similar approaches for estimating the original DIC of the water sample. The minor difference is that Koschorreck et al. do not include the density of water in their calculation (See Dickson et al. 2007 for more detail). This has no effect on the calculation of DIC in freshwater where the density is ~1.
 
 ```{r warning=TRUE,error=TRUE}
-
+###Raw code for each approach
 #Kos
 DIC_ori <- DIC_eq + (pCO2_eq[i] - pCO2_headspace[i])/1000000/(R*(temp_eq[i]+273.15))*HS.ratio
 
 #Hall
 DIC_correction<-function(CO2_pre,CO2_post,vol_hs,temp_equil,vol_samp){
-  delta_mol<-((CO2_post/(1000*1000))-(CO2_pre/(1000*1000)))*(vol_hs)/(R*(temp_equil + 273.15))
+  delta_mol<-((CO2_post)-(CO2_pre)/1000000)*(vol_hs)/(R*(temp_equil + 273.15))
   delta_DIC<-delta_mol/(dens*vol_samp)
   delta_DIC
 }
 DIC_corr<-Carb1$D+delta_DIC
 
-###Test with fake data
+###Modified code to compare both DIC estimates using the same data
+#Fake data
 R <- 0.082057338
 dens=0.9998395
+pCO2_eq=500 #Kos label
+CO2_post=500 #Hall label
+pCO2_headspace=0 #Kos label
+CO2_pre=0 #Hall label
+temp_eq=20 #Kos label
+HS.ratio=1.75
+DIC_eq=2799
+temp_equil=20 #Hall label
+vol_samp=40
+vol_hs=70
+
 #Kos
-DIC_ori <- DIC_eq + (pCO2_eq - pCO2_headspace)/1000000/(R*(temp_eq+273.15))*HS.ratio
-DIC_ori ##2799.494
+DIC_corr=(pCO2_eq - pCO2_headspace)/1000000/(R*(temp_eq+273.15))*HS.ratio
+DIC_corr##3.637481e-05
 
 #Hall
-delta_DIC<-DIC_correction(CO2_pre,CO2_post,vol_hs,temp_equil,vol_samp)
-DIC_corr<-Carb1$D+delta_DIC
-DIC_corr
+DIC_correction<-function(CO2_pre,CO2_post,vol_hs,temp_equil,vol_samp){
+  delta_DIC<-(((CO2_post-CO2_pre)/1000000))/(R*(temp_equil + 273.15))*(vol_hs/vol_samp)
+  delta_DIC
+  }
+DIC_corr<-DIC_correction(CO2_pre,CO2_post,vol_hs,temp_equil,vol_samp)
+DIC_corr# 3.637481e-05
+
 ```
 
-## Calculating the original CO2
-Kos and Hall use different approaches that yield the same answer.
+## Calculating the original CO~2~ from the corrected DIC
+Like the DIC equilibrium calculation above, the Hall lab and Koschorreck et al. use different calculations to calculate the original CO~2~ concentration.
 ```{r warning=TRUE,error=TRUE}
 #Kos
 h_all <- polyroot(c(-(K1*K2*Kw),K1*K2*AT-K1*Kw-2*DIC_ori*K1*K2,AT*K1-Kw+K1*K2-DIC_ori*K1,AT+K1,1))
@@ -218,11 +144,18 @@ Carbfrom_D_A <- function(K1, K2, DIC_corr, A){
   }
 
 ##Test with fake data
+#Other variables carried over from above
+DIC_ori=3000 #Kos label
+DIC_corr=3000 #Hall label
 #Kos
-co2 ## 800.0000
+h_all <- polyroot(c(-(K1*K2*Kw),K1*K2*AT-K1*Kw-2*DIC_ori*K1*K2,AT*K1-Kw+K1*K2-DIC_ori*K1,AT+K1,1))
+    real<-Re(h_all)
+    h <-real[which(real>0)]
+    co2 <- h* (DIC_ori * h * K1/(h * h + K1 * h + K1 * K2)) / K1
+co2 #1000.404
 
 #Hall
 Carb2<-Carbfrom_D_A(K1, K2, DIC_corr, A)
-Carb2$CO2 ## 800
+Carb2$CO2 ## 1000.404
 
 ```
