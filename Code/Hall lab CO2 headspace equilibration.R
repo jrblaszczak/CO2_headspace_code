@@ -1,12 +1,20 @@
 
+################################################################################################### 
+#####Hall lab code for determining CO2 concentration of a sample after headspace equilibration##### 
+###################################################################################################
+##Derivation of equations for solving carbonate chemistry can be found at: 
+##https://github.com/jrblaszczak/CO2_headspace_code/tree/master/Code
+##All other citations are presented with the relevant equation
+
+##Below is example data used to compare the Hall lab approach with that of Koschorreck et al. Biogeosciences
+
 ##Load data 
 data<-read.csv("2020_10_02_HScorrection_preformat.csv")
-data<-data[complete.cases(data),]
+
 ##Format data
 #Constants
 R= 0.08205601 # gas constant in L*atm/mol*K
 dens=0.9998395 # density of freshwater
-
 
 #Input variables
 temp_equil=data$WaterTemp_C        # temperature of water immediately after equilibriaum in C
@@ -20,7 +28,6 @@ A=(data$Alk_mgLCaCO3/1000/100)                 # alkalinity in mol/L
 
 
 Calculate_CO2<-function(temp_equil, temp_samp, press_samp, vol_hs, vol_samp, CO2_pre,CO2_post, A){
- ##StmpCO2 <-StmCO2fromSamp(temp_equil, temp_samp, press_samp, vol_hs, vol_samp, CO2_pre,CO2_post)
   StmpCO2.mol<-co2(temp_samp,CO2_post )
   K1<-K1calc(temp_equil)
   K2<-K2calc(temp_equil)
@@ -34,14 +41,13 @@ Calculate_CO2<-function(temp_equil, temp_samp, press_samp, vol_hs, vol_samp, CO2
   }
 
 ##Returns a list with the corrected DIC (D) and CO2 
-result<-Calculate_CO2(temp_equil, temp_samp, press_samp, vol_hs, vol_samp, CO2_pre,CO2_post,A)
-df<-as.data.frame(result)
-df<-df[complete.cases(df),]
+Result<-Calculate_CO2(temp_equil, temp_samp, press_samp, vol_hs, vol_samp, CO2_pre,CO2_post,A)
+
 
 ############
 ## Export
 ############
-write.csv(sum_file_final, "2020_09_23_CO2.csv",row.names = FALSE)
+write.csv(sum_file_final, "XXX.csv",row.names = FALSE)
 
 
 
@@ -55,25 +61,6 @@ KH.CO2 <- function(temp_equil){
   tempK <- temp_equil + 273.15
   KH.CO2 <- exp( -58.0931 + (90.5069*(100/tempK)) +22.2940*log((tempK/100), base=exp(1)) )
   KH.CO2
-}
-
-##### FUNCTION TO ESTIMATE STREAM pCO2 from headspace CO2 #####
-#
-# R= gas constant (0.08205601) in L*atm/mol*K
-# temp_equil= temperature of water immediately after equilibriaum in C
-# temp_samp= temperature of water at the time of sampling in C
-# press_samp= pressure at the time of sampling in atm
-# vol_hs= volume of headspace in mL
-# vol_samp= volume of water sample in mL
-# CO2_pre=pCO2 of headspace before equilibrium (zero if using zero air) # uatm or ppmv 
-# CO2_post=pCO2 of hs after equilibrium  # uatm or ppmv
-StmCO2fromSamp <- function(temp_equil, temp_samp, press_samp, vol_hs, vol_samp, CO2_pre,CO2_post){
-  temp_equil.K <- temp_equil + 273.15
-  molV <- R*(temp_equil.K)*(press_samp) # L mol-1
-  hsRatio <- vol_hs/vol_samp
-  KH.equil <- KH.CO2(temp_equil) # mol L-1 atm-1
-  KH.samp <- KH.CO2(temp_samp) # mol L-1 atm-1
-  StmpCO2 <- ((CO2_post*KH.equil)+(hsRatio*((CO2_post-CO2_pre)/molV)))/KH.samp
 }
 
 #####ppmv to mol/L
@@ -126,6 +113,7 @@ DIC_correction<-function(CO2_pre,CO2_post,vol_hs,temp_equil,vol_samp){
 
 DIC_corr<-Carb1$D+delta_DIC
 
+### Recalculate CO2 using DIC and Alkalinity####
 
 Carbfrom_D_A <- function(K1, K2, DIC_corr, A){
   a <- A
@@ -147,20 +135,6 @@ Carbfrom_D_A <- function(K1, K2, DIC_corr, A){
   return(Carb2)
   }
 
-#################################################
-####Knit functions together to calculate CO2######
-#################################################
 
-
-Calculate_CO2<-function(temp_equil, temp_samp, press_samp, vol_hs, vol_samp, CO2_pre,CO2_post, A){
-  StmpCO2 <-StmCO2fromSamp(temp_equil, temp_samp, press_samp, vol_hs, vol_samp, CO2_pre,CO2_post)
-  StmpCO2.umol <-Fw(tempC, StmpCO2)
-  K1<-K1calc(temp_equil)
-  K2<-K2calc(temp_equil)
-  DIC<-Carbfrom_C_A(K1, K2, StmpCO2.umol, A)
-  delta_DIC<-DIC_correction(CO2_pre,CO2_post,vol_hs,temp_equil,vol_samp)
-  DIC_corr<-Carb1$D+delta_DIC
-  CO2_corr<-Carbfrom_D_A(K1, K2, DIC_corr, A)
-  }
 
 
