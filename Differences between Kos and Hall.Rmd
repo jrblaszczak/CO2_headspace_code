@@ -47,7 +47,6 @@ co2<- 800 #Kos label
 StmpCO2.umol<-800 #Hall label
 
 #Run Kos
-co2 <- Kh * pCO2_eq/1000000
     h_all <- polyroot(c(-(2*K1*K2*co2),-(co2*K1+Kw),AT,1))
     real<-Re(h_all)
     h <-real[which(real>0)]
@@ -58,11 +57,11 @@ Carb1<-Carbfrom_C_A(K1, K2,StmpCO2.umol, A )
 
 ##Results
 #Kos
-H_all#1.66*10^-7
+h#1.66*10^-7
 DIC_eq#2799
 
 #Hall
-H#1.66*10^-07
+Carb1$H#1.66*10^-07
 Carb1$D#2799
 ```
 
