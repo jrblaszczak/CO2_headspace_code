@@ -1,0 +1,178 @@
+---
+output: html_document
+---
+
+### Freshwater Carbonate Equilibration Equations
+#### J.R. Blaszczak, R.O. Hall, M.T. Trentman
+#### `r Sys.Date()`
+
+
+Carbon dioxide is one multiple species of carbon that makes up the freshwater dissolved inorganic carbon (DIC) pool. The total DIC pool is the sum of carbon dioxide ($CO_2$), bicarbonate ($HCO_{3}^-$), and carbonate ($CO_{3}^{2-}$) concentrations.The strength of the carbonate buffering system is dependent on pH ($-log([H^{+}])$) and alkalinity ($A_T$).
+
+**There are a series of four equilibrium equations that describe the carbonate buffering system, as follows:**
+
+(1) $K_{1} = \frac{[HCO_{3}^-][H^+]}{[H_{2}CO_{3}]}$
+
+
+(2) $K_{2} = \frac{[CO_{3}^2-][H^+]}{[HCO_{3}^-]}$
+
+
+(3) $A_T = [HCO_{3}^-] + 2[CO_{3}^2-]$
+
+
+(4) $D = [H_{2}CO_{3}] + [HCO_{3}^-] + [CO_{3}^{2-}]$
+
+
+Where $[H_{2}CO_{3}] \approx [CO_{2}]$ measured in the headspace in units $ppmv$, $A_T$ is streamwater alkalnity concentrations in units $mol$$m^{-3}$, $D$ is the total dissolved inorganic carbon concentrations, and the equilibrium constants $K_1$ and $K_2$ are temperature dependent and can be adjusted according to the following relationships (Millero et al. 2006):
+
+$K_1 = 10^{ (-126.34048 + 6320.813/(T+273.15)+19.568224\times log(T+273.15)}$
+
+$K_2 = 10^{ (-90.18333+5143.692/(T+273.15)+14.613358\times log(T+273.15))}$
+
+Where $T$ is water temperature at equilibration in degrees Celsius.
+
+
+<br/>
+
+**First, we will use the measured alkalinity and $CO_{2}$ concentrations to solve for the first distribution of carbonate species.**
+
+
+Start by rearranging $K_{1}$ to solve for $[HCO_{3}^-]$:
+
+$[HCO_{3}^-] = \frac{K_{1}[CO_{2}]}{[H^+]}$
+
+Next, rearrange $K_{2}$ to solve for $[CO_{3}^{2-}]$:
+
+$[CO_{3}^{2-}] = \frac{K_{2}[HCO_{3}^-]}{[H^+]}$
+
+Then, substitute $[HCO_{3}^-]$ in to get:
+
+$[CO_{3}^{2-}] = \frac{K_{1}K_{2}[CO_{2}]}{[H^+]^2}$
+
+To solve for $[H^+]$, plug $[HCO_{3}^-]$ and $[CO_{3}^{2-}]$ into the alkalinity ($A_T$) equation:
+
+$A_T = \frac{K_{1}[CO_{2}]}{[H^+]} + 2\frac{K_{1}K_{2}[CO_{2}]}{[H^+]^2}$
+
+Next, multiply the full equation by $[H^+]^2$ and arrange everything on the same side of the equation:
+
+$0 = -A_{T}[H^+]^2 + K_{1}[CO_{2}][H^+] + 2K_{1}K_{2}[CO_{2}]$
+
+Use the quadratic equation to solve for $[H^+]$:
+
+$[H^+] = \frac{-K_{1}[CO_{2}] \pm \sqrt{(K_{1}[CO_{2}])^2 - 4(-A_{T})(2K_{1}K_{2}[CO_{2}])}}{2\times(-A_{T})}$
+
+Use the measured $A_T$ and $CO_2$ concentration values to calculate $[H^+]$, then use that value to calculate both $[HCO_{3}^-]$ and $[CO_{3}^{2-}]$ that can finally be plugged into the DIC equation:
+
+$D = [CO_{2}] + [HCO_{3}^-] + [CO_{3}^2-]$
+
+For good measure, double check whether your alkalinity concentration is recoverable by also plugging $[HCO_{3}^-]$ and $[CO_{3}^{2-}]$ into the alkalinity equation:
+
+$A_{T} = [HCO_{3}^-] + 2[CO_{3}^2-]$
+
+<br>
+
+```{r eval=FALSE}
+## In code, step 1 carbonate chemistry from CO2 & Alkalinity:
+Carbfrom_C_A <- function(K1, K2, C, A){
+  H_minus <- (((-K1*C))-sqrt(((K1*C)^2)-(4*-1*A*2*K1*K2*C)))/(2*-1*A)
+  pH <- -1*log10(H_minus)
+  B <- (K1*C)/H_minus
+  Ca <- (K2*B)/H_minus
+  D <- C + B + Ca
+  A_check <- B + 2*Ca
+  
+  l <- list(H_minus, pH, C, B, Ca, D, A, A_check)
+  names(l) <- c("H", "pH", "C", "B", "Ca", "D", "A","A check")
+  return(l)
+}
+
+```
+
+
+**Now that we have the first set of carbonate species to initialize the model, use the calculated DIC concentration from the previous step and the measured alkalinity concentration to run a forward model.**
+Alkalinity is assumed to be constant throughout the 24 hour period.
+
+First, let's solve for $[HCO_{3}^{-}]$ by rearranging the original $K_1$ and $K_2$ equations such that:
+
+$[CO_2] = \frac{[HCO_{3}^{-}][H^+]}{K_1}$
+
+and
+
+$[CO_{3}^{2-}] = \frac{K_2[HCO_{3}^{-}]}{[H^+]}$
+
+We can then plug both of these into the original $D$ equation:
+
+$D = [CO_2] + [HCO_{3}^-] + [CO_{3}^{2-}]$
+
+$D = \frac{[HCO_{3}^{-}][H^+]}{K_1} + [HCO_{3}^-] + \frac{K_2[HCO_{3}^{-}]}{[H^+]}$
+
+Then solve the equation for $[HCO_{3}^-]$ and you get:
+
+$[HCO_{3}^{-}] = \frac{K_{1}[H^+]D}{K_{1}[H^+] + K_{1}K_{2} + [H^+]^{2}}$
+
+Repeat the same steps except solve for $[CO_{3}^{2-}]$ and you get:
+
+$[CO_{3}^{2-}] = \frac{K_{1}K_{2}D}{[H^+]^{2} + K_{1}[H^+] + K_{1}K_{2}}$
+
+In addition, solve for $[H^+]$ by plugging the above two solutions (clue: they have the same denominator so it is easier to solve) into the alkalinity equation:
+
+$A_{T} = [HCO_{3}^{-}] + 2[CO_{3}^{2-}]$
+
+$A_{T} = \frac{K_{1}[H^+]D}{K_{1}[H^+] + K_{1}K_{2} + [H^+]^{2}} + \frac{2K_{1}K_{2}D}{[H^+]^{2} + K_{1}[H^+] + K_{1}K_{2}}$
+
+$A_{T}\times ([H^+]^{2} + K_{1}[H^+] + K_{1}K_{2}) = K_{1}[H^+]D + 2K_{1}K_{2}D$
+
+Multiply $A_T$ out and arrange all variables on one side:
+
+$A_{T}[H^+]^{2} + K_{1}(A_T - D)[H^+] + K_{1}K_{2}(A_T - 2D) = 0$
+
+Then solve for $[H^{+}]$ using the quadratic equation:
+
+$[H^+] = \frac{-K_{1}\times(A_{T}-DIC) \pm \sqrt{(K_{1}\times(A_{T}-DIC))^2 - 4(A)(K_{1}K_{2}*(A_{T}-2DIC))}}{2\times A_{T}}$
+
+And fit the DIC model to the measured $[CO_2]$ for the next time step using the equation:
+
+$[CO_2] = \frac{[HCO_{3}^{-}][H^+]}{K_1}$
+
+
+
+
+
+```{r eval=FALSE}
+## In code, step 2 carbonate chemistry from D & A:
+Carbfrom_D_A <- function(K1, K2, D1, A){
+  a <- A
+  b <- K1*(A-D1)
+  c <- (A-(2*D1))*K1*K2
+  H_t <- ((-1*b)+sqrt((b^2)-(4*a*c)))/(2*a)
+  
+  pH_t <- -1*log10(H_t)
+  
+  B_t <- (D1*K1*H_t)/((H_t^2)+(K1*H_t)+(K1*K2))
+  Ca_t <- (D1*K1*K2)/((H_t^2)+(K1*H_t)+(K1*K2))
+  
+  C_t <- (H_t*B_t)/K1
+  D2 <- C_t + B_t + Ca_t
+  A2_check <- B_t + 2*Ca_t
+  
+  l <- list(H_t, pH_t, C_t, B_t, Ca_t, D2, A, A2_check)
+  names(l) <- c("H", "pH", "C", "B", "Ca", "D", "A", "A check")
+  return(l)
+}
+```
+
+
+
+
+#### References
+
+Millero, F. J., T. B. Graham, F. Huang, H. Bustos-Serrano, and D. Pierrot. 2006. Dissociation constants of carbonic acid in seawater as a function of salinity and temperature. Marine Chemistry 100:80–94.
+
+
+
+
+
+
+
+
+
