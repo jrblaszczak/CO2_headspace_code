@@ -68,38 +68,37 @@
 #         Salinity # Salinity in PSU, set to zero if option in 10 is set to 1.
 #
 #
-<<<<<<< HEAD
+
 #EXAMPLE OF USE:
 source("Rheadspace.R")
-data<-read.csv("2020_09_23_CO2_QAQC.csv")
+#data<-read.csv("2020_09_23_CO2_QAQC.csv")
+alka<-read.csv("2020_10_02_HScorrection_allformatted.csv")
+alka<-alka[complete.cases(alka),]
+Sample.ID<-data$CO2
+HS.pCO2.before<-0
+HS.pCO2.after<-data$CO2 
+Temp.insitu<-data$WaterTemp_C    
+Temp.equil<-data$WaterTemp_C
+Alkalinity.measured<-(data$Alk_mgLCaCO3/1000/100*1000*1000)
+Volume.gas<-data$air_mL
+Volume.water<-data$H2O_mL 
+Bar.pressure<-(data$Baro_inHg*3.386)
+Constants=data$Constants
+Salinity=0
+min(pCO2$`% error`)
+max(pCO2$`% error`)
+data.com<-cbind(Sample.ID,HS.pCO2.before,HS.pCO2.after,Temp.insitu,Temp.equil,Alkalinity.measured,Volume.gas,Volume.water,Bar.pressure,Constants,Salinity)
+data.com<-as.data.frame(data.com)
+data.com<-data.com[complete.cases(data.com),]
 
-Sample.ID<-data$Syringe 
-HS.pCO2.before<-data$CO2_pre
-HS.pCO2.after<-data$CO2_post
-Temp.insitu<-data$temp_samp    
-Temp.equil<-data$temp_equil
-Alkalinity.measured<-data$alkalinity
-Volume.gas<-data$vol_hs 
-Volume.water<-data$vol_samp
-Bar.pressure<-data$press_samp
-Constants=1
-Salinity<-0
+pCO2 <- Rheadspace(data.com)
 
-data<-cbind(Sample.ID,HS.pCO2.before,HS.pCO2.after,Temp.insitu,Temp.equil,Alkalinity.measured,Volume.gas,Volume.water,Bar.pressure,Constants,Salinity)
-data<-as.data.frame(data)
-
-
-pCO2 <- Rheadspace(data)
- 
-
-# EXAMPLE OF USE:
-# source("Rheadspace.R")
-# data<-read.csv("2020_08_17_CO2_carbonate correction.csv")
-# pCO2 <- Rheadspace(data)
- 
-# dataset <- read.csv("R_test_data.csv")
+source("Rheadspace.R")
+# 
+#  pCO2 <- Rheadspace("Sample_1",0,80,20,25,1050,30,30,101.325,1,0)
+# 
+#  dataset <- read.csv("R_test_data.csv")
 #  pCO2 <- Rheadspace(dataset)
-
 #
 # OUTPUT: a data frame containing:
 #      1. Sample IDs
@@ -143,7 +142,7 @@ Rheadspace <-  function(...){
       Bar.pressure = input.table$Bar.pressure #Barometric pressure at field conditions in kPa. 101.325 kPa = 1 atm   
       c_constants = input.table$Constants #Constants for carbonate equilibrium (1=Freshwater; 2=Estuarine; 3=Marine) 
       Salinity = input.table$Salinity #Salinity in PSU. Set to zero if Constants = 1
-      } 
+    } 
   } else if (length(arguments)==11) {
     Sample.ID = as.character(arguments[[1]])
     pCO2_headspace = arguments[[2]] #the pCO2 (ppmv) of the headspace "before" equilibration
@@ -180,11 +179,11 @@ Rheadspace <-  function(...){
     # K2 = the equilibrium constant between HCO3- and CO3 2-
     
     Kw = 10^(-(0.0002*((temp_eq[i])^2)-0.0444*temp_eq[i]+14.953))
-    Kh = 10^((-60.2409+93.4517*(100/(273.15+20))+23.3585*log((273.15+20)/100))/log(10)) # mol/L/atm equilibration conditions
+    Kh = 10^((-60.2409+93.4517*(100/(273.15+temp_eq[i]))+23.3585*log((273.15+temp_eq[i])/100))/log(10)) # mol/L/atm equilibration conditions
     Kh2 = 10^((-60.2409+93.4517*(100/(273.15+temp_insitu[i]))+23.3585*log((273.15+temp_insitu[i])/100))/log(10)) # mol/L/atm original conditions
     
     if (c_constants == 1) {
-    
+      
       #Millero, F. (1979). The thermodynamics of the carbonate system in seawater
       #Geochimica et Cosmochimica Acta 43(10), 1651 1661.  
       K1=10^-(-126.34048+6320.813/(temp_eq[i]+273.15)+19.568224*log(temp_eq[i]+273.15))
@@ -219,7 +218,7 @@ Rheadspace <-  function(...){
       stop("Option for carbonate equilibrium constants should be a number between 1 and 3", call.=FALSE)
       
     }
-      
+    
     HS.ratio <- vol_gas[i]/vol_water[i] #Headspace ratio (=vol of gas/vol of water)
     
     #DIC at equilibrium
@@ -230,7 +229,8 @@ Rheadspace <-  function(...){
     DIC_eq <- co2 * (1 + K1/h + K1 * K2/(h * h))
     
     #DIC in the original sample
-    DIC_ori <- DIC_eq + (pCO2_eq[i] - pCO2_headspace[i])/1000000/(R*(temp_eq[i]+273.15))*HS.ratio
+    DIC_corr <-(pCO2_eq[i] - pCO2_headspace[i])/1000000/(R*(temp_eq[i]+273.15))*HS.ratio
+    DIC_ori <- DIC_eq + DIC_corr
     
     #pCO2 in the original sample
     h_all <- polyroot(c(-(K1*K2*Kw),K1*K2*AT-K1*Kw-2*DIC_ori*K1*K2,AT*K1-Kw+K1*K2-DIC_ori*K1,AT+K1,1))
@@ -263,8 +263,9 @@ Rheadspace <-  function(...){
     pCO2_orig[i,6] <- pCO2_orig[i,5]*Bar.pressure[i]/101.325 # micro-atm
     
     #calculation of the error
-    pCO2_orig[i,7] <- (pCO2_orig[i,5]-pCO2_orig[i,2])/pCO2_orig[i,2] *100  #%
-  }
+    pCO2_orig[i,7] <- (pCO2_orig[i,5]-pCO2_orig[i,2])/pCO2_orig[i,2] *100  #%    
+    pCO2_orig[i,8] <-DIC_corr
+    }
   
   
   return(pCO2_orig) #Output data frame
