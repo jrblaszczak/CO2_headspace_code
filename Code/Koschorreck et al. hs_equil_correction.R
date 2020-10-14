@@ -68,12 +68,9 @@
 #         Salinity # Salinity in PSU, set to zero if option in 10 is set to 1.
 #
 #
+##Example data for Kos comment
+data<-read.csv("2020_10_02_HScorrection_allformatted.csv")
 
-#EXAMPLE OF USE:
-source("Rheadspace.R")
-#data<-read.csv("2020_09_23_CO2_QAQC.csv")
-alka<-read.csv("2020_10_02_HScorrection_allformatted.csv")
-alka<-alka[complete.cases(alka),]
 Sample.ID<-data$CO2
 HS.pCO2.before<-0
 HS.pCO2.after<-data$CO2 
@@ -85,10 +82,10 @@ Volume.water<-data$H2O_mL
 Bar.pressure<-(data$Baro_inHg*3.386)
 Constants=data$Constants
 Salinity=0
-min(pCO2$`% error`)
-max(pCO2$`% error`)
+##Combine data and format as dataframe
 data.com<-cbind(Sample.ID,HS.pCO2.before,HS.pCO2.after,Temp.insitu,Temp.equil,Alkalinity.measured,Volume.gas,Volume.water,Bar.pressure,Constants,Salinity)
 data.com<-as.data.frame(data.com)
+##Remove NAs (required to run code)
 data.com<-data.com[complete.cases(data.com),]
 
 pCO2 <- Rheadspace(data.com)
@@ -264,7 +261,6 @@ Rheadspace <-  function(...){
     
     #calculation of the error
     pCO2_orig[i,7] <- (pCO2_orig[i,5]-pCO2_orig[i,2])/pCO2_orig[i,2] *100  #%    
-    pCO2_orig[i,8] <-DIC_corr
     }
   
   
