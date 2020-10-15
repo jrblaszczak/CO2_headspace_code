@@ -1,8 +1,7 @@
 ## Test of Koschorrek HS equilibration correction
 
 library(dplyr)
-
-source("Koschorreck et al. hs_equil_correction.R")
+source("Koschorreck_Rheadspace.R")
 
 ## Import data and format again
 setwd("../Data")

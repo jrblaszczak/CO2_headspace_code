@@ -72,7 +72,7 @@ hs$HS.pCO2.before <- 0
 hs$HS.pCO2.after <- hs$CO2 ## check if units correct
 hs$Temp.insitu <- hs$WaterTemp_C
 hs$Temp.equil <- hs$WaterTemp_C ## assuming the temperature is the same
-hs$Alkalinity.measured <- hs$Alk_mgLCaCO3/50.04345 #mg/mEq to get meq/L from mg/L
+hs$Alkalinity.measured <- (hs$Alk_mgLCaCO3*1000)/(50*2)
 hs$Volume.gas <- hs$air_mL
 hs$Volume.water <- hs$H2O_mL
 hs$Bar.pressure <- hs$Baro_inHg*3.38639
