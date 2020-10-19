@@ -5,15 +5,15 @@ a. "Differences between Kos and Hall.Rmd" - Rmarkdown file of compare major diff
 b. "Differences-between-Kos-and-Hall.html" - Knit version of Rmarkdown file
 
 ## Code folder
-a. "2020_10 Data Compile.R"
-b. "2020_10 HS correction data test.R"
-c. "Comparing approaches to solve for H.R"
-d. "Hall lab CO2 headspace equilibration.R"
-e. "Koschorreck et al. hs_equil_correction.R"
-f. "Koschorreck_Rheadspace.R"       
-g. Oct2020_CO2HeadspaceEquations.html"
-h. Oct2020_CO2HeadspaceEquations.Rmd"
-i. "picarro_data_harvest_withQAQC.R"
+1. "2020_10 Data Compile.R"
+2. "2020_10 HS correction data test.R"
+3. "Comparing approaches to solve for H.R"
+4. "Hall lab CO2 headspace equilibration.R"
+5. "Koschorreck et al. hs_equil_correction.R"
+6. "Koschorreck_Rheadspace.R"       
+7. Oct2020_CO2HeadspaceEquations.html"
+8. Oct2020_CO2HeadspaceEquations.Rmd"
+9. "picarro_data_harvest_withQAQC.R"
 
 
 ## Data folder
