@@ -1,4 +1,8 @@
-# Shared data and code for headspace equilibration corrections
+# Hall lab headspace equilibration correction comparison
+
+## Main folder
+a. "Differences between Kos and Hall.Rmd" - Rmarkdown file of compare major differences between our group (Hall lab) and that of Koschorreck et al. for calculating the CO2 concentration in a water sample after headspace equilibration as a part of our comment to their manuscript in review with Biogeosciences. 
+
 
 Code folder - code to compare headspace corrections:<br/>
 a. Data Compiler - converting raw data to proper format
