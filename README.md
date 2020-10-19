@@ -1,13 +1,13 @@
 # Hall lab headspace equilibration correction comparison
 
 ## Main folder
-a. "Differences between Kos and Hall.Rmd" - Rmarkdown file of compare major differences between our group (Hall lab) and that of Koschorreck et al. for calculating the CO2 concentration in a water sample after headspace equilibration as a part of our comment to their manuscript in review with Biogeosciences. 
-b. "Differences-between-Kos-and-Hall.html" - Knit version of Rmarkdown file
+1. "Differences between Kos and Hall.Rmd" - Rmarkdown file of compare major differences between our group (Hall lab) and that of Koschorreck et al. for calculating the CO2 concentration in a water sample after headspace equilibration as a part of our comment to their manuscript in review with Biogeosciences. 
+2. "Differences-between-Kos-and-Hall.html" - Knit version of Rmarkdown file
 
 ## Code folder
-1. "2020_10 Data Compile.R"
-2. "2020_10 HS correction data test.R"
-3. "Comparing approaches to solve for H.R"
+1. "2020_10 Data Compile.R" - Code to compile raw data files from the Data folder into appropriate format for code
+2. "2020_10 HS correction data test.R" - Initial test of Koschorreck code using formatted Blaszczak data from MT and AZ
+3. "Comparing approaches to solve for H.R" - Initial code comparing approaches to solving for H^{+}
 4. "Hall lab CO2 headspace equilibration.R"
 5. "Koschorreck et al. hs_equil_correction.R"
 6. "Koschorreck_Rheadspace.R"       
@@ -17,9 +17,7 @@ b. "Differences-between-Kos-and-Hall.html" - Knit version of Rmarkdown file
 
 
 ## Data folder
-
-
-Data folder - data files from MT and AZ streams have the following:<br />
-a. Metadata - datetime, location<br />
-b. CO2 concentrations in the headspace after equilibration and measurement on the Picarro<br />
-c. Alkalinity, pH, barometric pressure, etc.<br />
+Data files from Montana and Arizona streams with the following:
+1. 
+2.
+3.
