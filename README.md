@@ -7,7 +7,7 @@
 ## Code folder
 1. "2020_10 Data Compile.R" - Code to compile raw data files from the Data folder into appropriate format for code
 2. "2020_10 HS correction data test.R" - Initial test of Koschorreck code using formatted Blaszczak data from MT and AZ
-3. "Comparing approaches to solve for H.R" - Initial code comparing approaches to solving for H^{+}
+3. "Comparing approaches to solve for H.R" - Initial code comparing approaches to solving for H<sup>+</sup>
 4. "Hall lab CO2 headspace equilibration.R"
 5. "Koschorreck et al. hs_equil_correction.R"
 6. "Koschorreck_Rheadspace.R"       
