@@ -17,7 +17,6 @@
 
 
 ## Data folder
-Data files from Montana and Arizona streams with the following:
-1. 
-2.
-3.
+Data files from Montana and Arizona streams including among raw data files:
+1. "~Diel_QAQC.csv" - processed Picarro gas analyzer output from headspace equilibrated gas sample injections
+2. "2020_10_02_HScorrection_allformatted.csv" - compiled and formatted data for headspace equilibration correction comparison
